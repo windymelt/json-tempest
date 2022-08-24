@@ -9,7 +9,8 @@ case class Schema(
     title: Option[String] = None,
     description: Option[String] = None,
     `type`: String,
-    properties: Option[Map[String, Schema]] = None
+    properties: Option[Map[String, Schema]] = None,
+    exclusiveMaximum: Option[Int] = None
 )
 
 object Schema {

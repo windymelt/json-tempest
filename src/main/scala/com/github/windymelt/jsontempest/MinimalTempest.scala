@@ -29,6 +29,17 @@ trait MinimalTempest {
   }
 
   private def validateJson(schema: Schema, json: Foo): Boolean = {
-    true
+    schema.properties match {
+      case None => true
+      case Some(p) =>
+        p.get("foo") match {
+          case None => false
+          case Some(foov) =>
+            foov.exclusiveMaximum match {
+              case None      => true
+              case Some(max) => json.foo < max
+            }
+        }
+    }
   }
 }
