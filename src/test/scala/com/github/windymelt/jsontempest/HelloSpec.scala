@@ -1,4 +1,4 @@
-package example
+package com.github.windymelt.jsontempest
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers

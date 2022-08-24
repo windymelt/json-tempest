@@ -1,4 +1,4 @@
-package example
+package com.github.windymelt.jsontempest
 
 object Hello extends Greeting with App {
   println(greeting)
