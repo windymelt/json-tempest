@@ -7,14 +7,3 @@ object Hello extends MinimalTempest with App {
     case false => sys.exit(1) // invalid
   }
 }
-
-trait MinimalTempest {
-
-  /** Very primitive stub validate function.
-    *
-    * @return
-    */
-  def validate(json: String): Boolean = {
-    true
-  }
-}
