@@ -6,7 +6,7 @@ trait MinimalTempest {
     *
     * @return
     */
-  def validate(json: String): Boolean = {
+  def validate(schema: String)(json: String): Boolean = {
     true
   }
 }

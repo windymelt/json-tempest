@@ -5,6 +5,22 @@ import org.scalatest.matchers.should.Matchers
 
 class MinimalTempestSpec extends AnyFlatSpec with Matchers with MinimalTempest {
   "Tempest" should "validate fundamental json" in {
-    validate("""{"foo": 12345}""") shouldEqual true
+    val json = """{"foo": 12345}"""
+    val schema = """
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/product.schema.json",
+      "title": "foo",
+      "description": "foo",
+      "type": "object",
+      "properties": {
+        "foo": {
+          "description": "foo is int",
+          "type": "integer"
+        }
+      }
+    }
+    """
+    validate(schema)(json) shouldEqual true
   }
 }
