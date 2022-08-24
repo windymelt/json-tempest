@@ -1,6 +1,7 @@
 package com.github.windymelt.jsontempest
 
 import com.github.windymelt.jsontempest.Attr.Attr
+import io.circe.Json
 
 trait MinimalTempest {
   case class Foo(foo: Int)
@@ -20,7 +21,7 @@ trait MinimalTempest {
     // parse json
     // foo should be integer
     val parsedSchema = Schema.fromString(schema)
-    val parsedJson = decode[Foo](json)
+    val parsedJson = parse(json)
     (parsedSchema, parsedJson) mapN { (s, j) =>
       println("parse successful")
       println(s)
@@ -28,7 +29,10 @@ trait MinimalTempest {
     } getOrElse (false)
   }
 
-  private def validateJson(schema: Schema, json: Foo): Boolean = {
+  private def validateJson(schema: Schema, json: Json): Boolean = {
+    // Satisfy all attributes contained in schema.
+    val attrs: Set[Attr] = Set() // ???
+    attrs.map(_.validateThis(json))
     schema.properties match {
       case None => true
       case Some(p) =>
@@ -36,8 +40,18 @@ trait MinimalTempest {
           case None => false
           case Some(foov) =>
             foov.exclusiveMaximum match {
-              case None      => true
-              case Some(max) => json.foo < max
+              case None =>
+                foov.`type` match {
+                  case "string"  => json.asObject.get("foo").get.isString
+                  case "integer" => json.asObject.get("foo").get.isNumber
+                }
+              case Some(max) =>
+                val foo = json.asObject.get("foo").get
+                println(foo)
+                foo.asNumber match {
+                  case None        => false
+                  case Some(value) => value.toInt.get < max
+                }
             }
         }
     }
