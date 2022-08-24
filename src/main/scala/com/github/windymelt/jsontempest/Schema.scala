@@ -4,12 +4,12 @@ import Attr.Attr
 import io.circe.generic.auto._, io.circe.syntax._
 
 case class Schema(
-    `$schema`: Option[String],
-    `$id`: Option[String],
-    title: Option[String],
-    description: Option[String],
+    `$schema`: Option[String] = None,
+    `$id`: Option[String] = None,
+    title: Option[String] = None,
+    description: Option[String] = None,
     `type`: String,
-    properties: Option[Map[String, Schema]]
+    properties: Option[Map[String, Schema]] = None
 )
 
 object Schema {
