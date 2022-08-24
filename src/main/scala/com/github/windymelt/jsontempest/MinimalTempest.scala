@@ -1,5 +1,7 @@
 package com.github.windymelt.jsontempest
 
+import com.github.windymelt.jsontempest.Attr.Attr
+
 trait MinimalTempest {
   case class Foo(foo: Int)
   case class Schema(
