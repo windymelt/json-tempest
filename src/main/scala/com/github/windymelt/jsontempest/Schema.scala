@@ -1,4 +1,5 @@
-package com.github.windymelt.jsontempest
+package com.github.windymelt
+package jsontempest
 
 import Attr.Attr
 import io.circe.generic.auto._, io.circe.syntax._, io.circe.Json
@@ -12,10 +13,19 @@ case class Schema(
     properties: Option[Map[String, Schema]] = None,
     exclusiveMaximum: Option[Int] = None
 ) {
-  def validate(json: Json): Boolean = { true } // Stub
+  def validate(json: Json): Boolean = {
+    val attrs: Set[Attr] =
+      Schema.allAttrs flatMap (_.fromSchema(this))
+    println(s"attrs: $attrs")
+    val validated = attrs.map(_.validateThis(json))
+    println(validated)
+    validated.reduce(_ && _)
+  }
 }
 
 object Schema {
+  import Attr._
+  val allAttrs = Set(Properties, Type, ExclusiveMaximum)
   def fromString(s: String): Either[io.circe.Error, Schema] = {
     import io.circe._
     import io.circe.parser._

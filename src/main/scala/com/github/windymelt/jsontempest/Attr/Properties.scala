@@ -12,6 +12,7 @@ final case class Properties(props: Map[String, Schema]) extends Attr {
       case None => false
       case Some(jo) =>
         val validatedProps = props.map { case (k, v) =>
+          println(s"verifying property [${k}]")
           jo(k).map(foundProp => v.validate(foundProp))
         }
         if (validatedProps.find(_.isEmpty).isDefined) { return false }

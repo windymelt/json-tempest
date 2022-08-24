@@ -31,31 +31,6 @@ trait MinimalTempest {
 
   private def validateJson(schema: Schema, json: Json): Boolean = {
     // Satisfy all attributes contained in schema.
-    val attrs: Set[Attr] =
-      Set(Attr.Type, Attr.Properties) flatMap (_.fromSchema(schema))
-    val validated = attrs.map(_.validateThis(json))
-    println(validated)
-    schema.properties match {
-      case None => true
-      case Some(p) =>
-        p.get("foo") match {
-          case None => false
-          case Some(foov) =>
-            foov.exclusiveMaximum match {
-              case None =>
-                foov.`type` match {
-                  case "string"  => json.asObject.get("foo").get.isString
-                  case "integer" => json.asObject.get("foo").get.isNumber
-                }
-              case Some(max) =>
-                val foo = json.asObject.get("foo").get
-                println(foo)
-                foo.asNumber match {
-                  case None        => false
-                  case Some(value) => value.toInt.get < max
-                }
-            }
-        }
-    }
+    schema.validate(json)
   }
 }
