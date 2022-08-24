@@ -31,8 +31,10 @@ trait MinimalTempest {
 
   private def validateJson(schema: Schema, json: Json): Boolean = {
     // Satisfy all attributes contained in schema.
-    val attrs: Set[Attr] = Set() // ???
-    attrs.map(_.validateThis(json))
+    val attrs: Set[Attr] =
+      Set(Attr.Type, Attr.Properties) flatMap (_.fromSchema(schema))
+    val validated = attrs.map(_.validateThis(json))
+    println(validated)
     schema.properties match {
       case None => true
       case Some(p) =>

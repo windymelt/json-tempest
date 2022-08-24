@@ -1,7 +1,7 @@
 package com.github.windymelt.jsontempest
 
 import Attr.Attr
-import io.circe.generic.auto._, io.circe.syntax._
+import io.circe.generic.auto._, io.circe.syntax._, io.circe.Json
 
 case class Schema(
     `$schema`: Option[String] = None,
@@ -11,7 +11,9 @@ case class Schema(
     `type`: String,
     properties: Option[Map[String, Schema]] = None,
     exclusiveMaximum: Option[Int] = None
-)
+) {
+  def validate(json: Json): Boolean = { true } // Stub
+}
 
 object Schema {
   def fromString(s: String): Either[io.circe.Error, Schema] = {
