@@ -21,6 +21,8 @@ class MinimalTempestSpec extends AnyFlatSpec with Matchers with MinimalTempest {
       }
     }
     """
+    val badjson = """{"foo": "bar"}"""
     validate(schema)(json) shouldEqual true
+    validate(schema)(badjson) shouldEqual false
   }
 }

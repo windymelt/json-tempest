@@ -7,6 +7,18 @@ trait MinimalTempest {
     * @return
     */
   def validate(schema: String)(json: String): Boolean = {
-    true
+    import io.circe._
+    import io.circe.generic.auto._
+    import io.circe.parser._
+    import io.circe.syntax._
+
+    // parse json
+    // foo should be integer
+    case class Foo(foo: Int)
+    val parsedJson = decode[Foo](json)
+    parsedJson match {
+      case Left(value)  => false
+      case Right(value) => true
+    }
   }
 }
