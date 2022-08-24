@@ -1,6 +1,8 @@
 package com.github.windymelt.jsontempest
 
 trait MinimalTempest {
+  case class Foo(foo: Int)
+  case class Schema()
 
   /** Very primitive stub validate function.
     *
@@ -14,11 +16,12 @@ trait MinimalTempest {
 
     // parse json
     // foo should be integer
-    case class Foo(foo: Int)
+    val parsedSchema = Schema()
     val parsedJson = decode[Foo](json)
-    parsedJson match {
-      case Left(value)  => false
-      case Right(value) => true
-    }
+    parsedJson.map { validateJson(parsedSchema, _) } getOrElse (false)
+  }
+
+  private def validateJson(schema: Schema, json: Foo): Boolean = {
+    true
   }
 }
