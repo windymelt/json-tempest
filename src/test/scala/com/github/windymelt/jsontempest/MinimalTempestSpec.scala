@@ -9,7 +9,7 @@ class MinimalTempestSpec extends AnyFlatSpec with Matchers with MinimalTempest {
     val schema = """
     {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://example.com/product.schema.json",
+      "$id": "https://example.com/foo.schema.json",
       "title": "foo",
       "description": "foo",
       "type": "object",
