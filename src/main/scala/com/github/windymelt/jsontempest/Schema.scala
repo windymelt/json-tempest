@@ -3,13 +3,15 @@ package jsontempest
 
 import Attr.Attr
 import io.circe.generic.auto._, io.circe.syntax._, io.circe.Json
+import io.circe.shapes._
+import shapeless._
 
 case class Schema(
     `$schema`: Option[String] = None,
     `$id`: Option[String] = None,
     title: Option[String] = None,
     description: Option[String] = None,
-    `type`: String,
+    `type`: String :+: Set[String] :+: CNil,
     properties: Option[Map[String, Schema]] = None,
     `enum`: Option[Set[Json]] = None,
     exclusiveMaximum: Option[Int] = None

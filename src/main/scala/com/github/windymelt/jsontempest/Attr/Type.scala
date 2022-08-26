@@ -8,18 +8,30 @@ import io.circe.Json.JNull
 import io.circe.Json.JObject
 import io.circe.Json.JString
 
+import shapeless._
+
 import com.github.windymelt.jsontempest.Attr.Attr
 import com.github.windymelt.jsontempest.Schema
 
-final case class Type(`type`: String) extends Attr {
+final case class Type(`type`: String :+: Set[String] :+: CNil) extends Attr {
   def validateThis(json: Json): Boolean = json match {
-    case j if j.isArray   => `type` == "array"
-    case j if j.isBoolean => `type` == "boolean"
-    case j if j.isNumber  => `type` == "integer"
-    case j if j.isNull    => `type` == "null"
-    case j if j.isObject  => `type` == "object"
-    case j if j.isString  => `type` == "string"
+    case j if j.isArray   => checkType("array")
+    case j if j.isBoolean => checkType("boolean")
+    case j if j.isNumber  => checkType("number") || checkType("integer") // TODO: implement this
+    case j if j.isNull    => checkType("null")
+    case j if j.isObject  => checkType("object")
+    case j if j.isString  => checkType("string")
     case otherwise        => ???
+  }
+
+  private def checkType(expected: String): Boolean = {
+    `type` match {
+      case Inl(typeString) => expected == typeString
+      case Inr(tail) => tail match {
+        case Inl(typeStrings) => typeStrings contains expected
+        case Inr(_) => ???
+      }
+    }
   }
 }
 
