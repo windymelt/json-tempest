@@ -12,8 +12,10 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core",
       "io.circe" %% "circe-generic",
-      "io.circe" %% "circe-parser"
-    ).map(_ % circeVersion)
+      "io.circe" %% "circe-parser",
+      "io.circe" %% "circe-shapes"
+    ).map(_ % circeVersion),
+    libraryDependencies += "com.chuusai" % "shapeless_2.13" % "2.3.9"
   )
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
