@@ -11,7 +11,7 @@ case class Schema(
     `$id`: Option[String] = None,
     title: Option[String] = None,
     description: Option[String] = None,
-    `type`: String :+: Set[String] :+: CNil,
+    `type`: Option[String :+: Set[String] :+: CNil],
     properties: Option[Map[String, Schema]] = None,
     `enum`: Option[Set[Json]] = None,
     exclusiveMaximum: Option[Int] = None

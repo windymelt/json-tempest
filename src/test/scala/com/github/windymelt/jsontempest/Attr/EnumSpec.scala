@@ -66,4 +66,21 @@ class EnumSpec extends AnyFlatSpec with Matchers {
     parsedSchema.validate(json4) shouldBe false
     parsedSchema.validate(json5) shouldBe false
   }
+
+  it should "treat nullable Enum" in {
+    val schema = """
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/foo.schema.json",
+      "enum": ["foo",null]
+    }
+    """
+    val Right(parsedSchema) = Schema.fromString(schema)
+    val Right(json1) = parse(""""foo"""")
+    val Right(json2) = parse("""null""")
+    val Right(json3) = parse(""""bar"""")
+    parsedSchema.validate(json1) shouldBe true
+    parsedSchema.validate(json2) shouldBe true
+    parsedSchema.validate(json3) shouldBe false
+  }
 }

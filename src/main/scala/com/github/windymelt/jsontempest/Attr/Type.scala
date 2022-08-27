@@ -17,24 +17,26 @@ final case class Type(`type`: String :+: Set[String] :+: CNil) extends Attr {
   def validateThis(json: Json): Boolean = json match {
     case j if j.isArray   => checkType("array")
     case j if j.isBoolean => checkType("boolean")
-    case j if j.isNumber  => checkType("number") || checkType("integer") // TODO: implement this
-    case j if j.isNull    => checkType("null")
-    case j if j.isObject  => checkType("object")
-    case j if j.isString  => checkType("string")
-    case otherwise        => ???
+    case j if j.isNumber =>
+      checkType("number") || checkType("integer") // TODO: implement this
+    case j if j.isNull   => checkType("null")
+    case j if j.isObject => checkType("object")
+    case j if j.isString => checkType("string")
+    case otherwise       => ???
   }
 
   private def checkType(expected: String): Boolean = {
     `type` match {
       case Inl(typeString) => expected == typeString
-      case Inr(tail) => tail match {
-        case Inl(typeStrings) => typeStrings contains expected
-        case Inr(_) => ???
-      }
+      case Inr(tail) =>
+        tail match {
+          case Inl(typeStrings) => typeStrings contains expected
+          case Inr(_)           => ???
+        }
     }
   }
 }
 
 object Type extends AttrObject {
-  def fromSchema(s: Schema): Option[Attr] = Some(Type(s.`type`))
+  def fromSchema(s: Schema): Option[Attr] = s.`type`.map(Type.apply)
 }
