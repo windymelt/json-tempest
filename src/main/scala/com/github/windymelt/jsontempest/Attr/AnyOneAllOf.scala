@@ -9,7 +9,8 @@ import Validated.valid
 
 final case class SthOf(schemas: Set[Schema], inclusiveMin: Option[Int], inclusiveMax: Option[Int]) extends Attr {
   def validateThis(json: Json): Schema.SchemaValidatedResult = {
-    val validated0 = schemas.map(_.validate(json))
+    // Convert to Seq to keep its size (validated result may be duplicated)
+    val validated0 = schemas.toSeq.map(_.validate(json))
     val validatedSum = validated0.map {
       case Validated.Invalid(_) => 0
       case Validated.Valid(_) => 1
