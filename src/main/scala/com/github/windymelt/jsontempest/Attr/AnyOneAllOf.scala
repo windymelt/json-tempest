@@ -9,14 +9,19 @@ import Validated.valid
 
 final case class SthOf(schemas: Set[Schema], inclusiveMin: Option[Int], inclusiveMax: Option[Int]) extends Attr {
   def validateThis(json: Json): Schema.SchemaValidatedResult = {
-    val validatedSum = schemas.map(_.validate(json) match {
+    val validated0 = schemas.map(_.validate(json))
+    val validatedSum = validated0.map {
       case Validated.Invalid(_) => 0
       case Validated.Valid(_) => 1
-    }).sum
+    }.sum
+    val underlyingErrors = validated0.reduce(_ *> _) match {
+      case Validated.Valid(_) => "[all valid]"
+      case Validated.Invalid(es) => es.toChain.toVector.mkString(", ")
+    }
     val checkMin: Int => ValidatedNec[String, Unit] =
-      inclusiveMin.map(min => (x: Int) => Validated.condNec(min <= x, (), s"should pass at least $min schema")).getOrElse((_: Int) => valid(()))
+      inclusiveMin.map(min => (x: Int) => Validated.condNec(min <= x, (), s"should pass at least $min schema ($x / ${validated0.size} passed) ($underlyingErrors)")).getOrElse((_: Int) => valid(()))
     val checkMax: Int => ValidatedNec[String,Unit] =
-      inclusiveMax.map(max => (x: Int) => Validated.condNec(x <= max, (), s"should pass at most $max schema")).getOrElse((_: Int) => valid(()))
+      inclusiveMax.map(max => (x: Int) => Validated.condNec(x <= max, (), s"should pass at most $max schema ($x / ${validated0.size} passed) ($underlyingErrors)")).getOrElse((_: Int) => valid(()))
     val validated = checkMin(validatedSum) *> checkMax(validatedSum)
 
     validated
