@@ -15,7 +15,8 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-parser",
       "io.circe" %% "circe-shapes"
     ).map(_ % circeVersion),
-    libraryDependencies += "com.chuusai" % "shapeless_2.13" % "2.3.9"
-  )
+    libraryDependencies += "com.chuusai" % "shapeless_2.13" % "2.3.9",
+    Compile / mainClass := Some("com.github.windymelt.jsontempest.Main")
+  ).enablePlugins(NativeImagePlugin)
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
