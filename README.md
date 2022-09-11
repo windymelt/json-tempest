@@ -22,7 +22,7 @@
 - [ ] MinProperties
 - [ ] Minimum
 - [ ] MultipleOf
-- [ ] Not
+- [x] Not
 - [ ] OneOf
 - [ ] Pattern
 - [ ] Properties

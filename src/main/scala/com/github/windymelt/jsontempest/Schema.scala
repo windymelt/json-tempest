@@ -14,7 +14,7 @@ case class Schema(
     `type`: Option[String :+: Set[String] :+: CNil],
     properties: Option[Map[String, Schema]] = None,
     `enum`: Option[Set[Json]] = None,
-    not: Option[Schema] = None,
+    not: Option[Schema :+: Boolean :+: CNil] = None,
     required: Option[Set[String]] = None,
     exclusiveMaximum: Option[Int] = None
 ) {
