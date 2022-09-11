@@ -29,21 +29,21 @@ final case class SthOf(schemas: Set[Schema], inclusiveMin: Option[Int], inclusiv
   }
 }
 
-final case class AllOfBoolean(bools: Set[Boolean]) extends Attr {
+final case class AllOfBoolean(bools: Seq[Boolean]) extends Attr {
   def validateThis(j: Json) = Validated.condNec(!bools.contains(false), (), "All condition should be true")
 }
-final case class AnyOfBoolean(bools: Set[Boolean]) extends Attr {
+final case class AnyOfBoolean(bools: Seq[Boolean]) extends Attr {
   def validateThis(j: Json) = Validated.condNec(bools.contains(true), (), "At least one condition should be true")
 }
-final case class OneOfBoolean(bools: Set[Boolean]) extends Attr {
-  def validateThis(j: Json) = Validated.condNec(bools.count(_ == true) == 1, (), "Just one condition should be true")
+final case class OneOfBoolean(bools: Seq[Boolean]) extends Attr {
+  def validateThis(j: Json) = Validated.condNec(bools.toSeq.count(_ == true) == 1, (), "Just one condition should be true")
 }
 
 object AllOf extends AttrObject {
   import shapeless._
   def fromSchema(schema: Schema): Option[Attr] = schema.allOf.map {
     case Inl(s: Set[Schema]) => SthOf(s, Some(s.size), Some(s.size))
-    case Inr(Inl(bs: Set[Boolean])) => AllOfBoolean(bs)
+    case Inr(Inl(bs: Seq[Boolean])) => AllOfBoolean(bs)
     case Inr(Inr(_)) => ??? // Shouldn't be reached
   }
 }
@@ -52,7 +52,7 @@ object AnyOf extends AttrObject {
   import shapeless._
   def fromSchema(schema: Schema): Option[Attr] = schema.anyOf.map {
     case Inl(s: Set[Schema]) => SthOf(s, Some(1), None)
-    case Inr(Inl(bs: Set[Boolean])) => AnyOfBoolean(bs)
+    case Inr(Inl(bs: Seq[Boolean])) => AnyOfBoolean(bs)
     case Inr(Inr(_)) => ??? // Shouldn't be reached
   }
 }
@@ -61,7 +61,7 @@ object OneOf extends AttrObject {
   import shapeless._
   def fromSchema(schema: Schema): Option[Attr] = schema.oneOf.map {
     case Inl(s: Set[Schema]) => SthOf(s, Some(1), Some(1))
-    case Inr(Inl(bs: Set[Boolean])) => OneOfBoolean(bs)
+    case Inr(Inl(bs: Seq[Boolean])) => OneOfBoolean(bs)
     case Inr(Inr(_)) => ??? // Shouldn't be reached
   }
 }

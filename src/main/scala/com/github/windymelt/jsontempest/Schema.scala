@@ -13,7 +13,7 @@ case class Schema(
     title: Option[String] = None,
     description: Option[String] = None,
     `type`: Option[String :+: Set[String] :+: CNil],
-    properties: Option[Map[String, Schema]] = None,
+    properties: Option[Map[String, Schema] :+: Map[String, Boolean] :+: CNil] = None,
     `enum`: Option[Set[Json]] = None,
     not: Option[Schema :+: Boolean :+: CNil] = None,
     required: Option[Set[String]] = None,
@@ -23,9 +23,9 @@ case class Schema(
     exclusiveMaximum: Option[Double] = None,
     minLength: Option[Int] = None,
     maxLength: Option[Int] = None,
-    allOf: Option[Set[Schema] :+: Set[Boolean] :+: CNil] = None,
-    anyOf: Option[Set[Schema] :+: Set[Boolean] :+: CNil] = None,
-    oneOf: Option[Set[Schema] :+: Set[Boolean] :+: CNil] = None,
+    allOf: Option[Set[Schema] :+: Seq[Boolean] :+: CNil] = None,
+    anyOf: Option[Set[Schema] :+: Seq[Boolean] :+: CNil] = None,
+    oneOf: Option[Set[Schema] :+: Seq[Boolean] :+: CNil] = None,
 ) {
   def validate(json: Json): Schema.SchemaValidatedResult = {
     import cats.implicits._
