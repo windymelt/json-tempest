@@ -8,7 +8,7 @@
 - [ ] AdditionalItems
 - [ ] AdditionalProperties
 - [ ] AllOf
-- [ ] AnyOf
+- [x] AnyOf
 - [ ] Dependencies
 - [x] Enum
 - [ ] Format
