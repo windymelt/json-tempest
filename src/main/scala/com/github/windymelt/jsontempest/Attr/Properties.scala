@@ -22,8 +22,37 @@ final case class Properties(props: Map[String, Schema]) extends Attr {
   }
 }
 
+final case class BooleanProperties(props: Map[String, Boolean]) extends Attr {
+  import cats.implicits._
+
+  def validateThis(json: Json) = {
+    json.asObject match {
+      case None => Validated.valid(())
+      case Some(jo) =>
+        val trueFalseMap: Map[Boolean, List[String]] = props.groupMapReduce(_._2){ case k -> v => List(k) }(_ |+| _)
+
+        val caseTrue = (for {
+          key <- trueFalseMap.get(true).toList.flatten
+        } yield {
+          Validated.condNec(jo(key).isDefined, (), s"$key should be defined")
+        }).foldLeft(Validated.validNec[String, Unit](()))(_ *> _)
+
+        val caseFalse = (for {
+          key <- trueFalseMap.get(false).toList.flatten
+        } yield {
+          Validated.condNec(jo(key).isEmpty, (), s"$key should not be defined")
+        }).foldLeft(Validated.validNec[String, Unit](()))(_ *> _)
+
+        caseTrue *> caseFalse
+    }
+  }
+}
+
 object Properties extends AttrObject {
-  def fromSchema(s: Schema): Option[Attr] = s.properties map { prop =>
-    Properties(prop)
+  import shapeless._
+  def fromSchema(s: Schema): Option[Attr] = s.properties map {
+    case Inl(props) => Properties(props)
+    case Inr(Inl(booleanProps)) => BooleanProperties(booleanProps)
+    case Inr(Inr(_)) => ???
   }
 }
