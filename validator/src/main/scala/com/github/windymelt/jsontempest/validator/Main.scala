@@ -4,7 +4,8 @@ package validator
 import scala.io.Source
 
 object Main extends MinimalTempest with App {
-  val suitesList = Seq(Source.fromFile("./testsuite/tests/latest/enum.json")) // TODO: walk directory
+  val suitesList = Seq(Source.fromFile("../testsuite/tests/latest/oneOf.json")) // TODO: walk directory
+  var hasFailed: Boolean = false
 
   for {
     suites <- suitesList
@@ -37,8 +38,11 @@ object Main extends MinimalTempest with App {
           println(s"FAILED: ${test.description}")
           println(s"  expected: ${test.valid}")
           println(s"  data:     ${test.data}")
+          hasFailed = true
       }
     }
     println()
   }
+
+  sys.exit(hasFailed match { case true => 1; case false => 0 })
 }
