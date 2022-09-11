@@ -4,7 +4,7 @@ package validator
 import scala.io.Source
 
 object Main extends MinimalTempest with App {
-  val suitesList = Seq(Source.fromFile("../testsuite/tests/latest/oneOf.json")) // TODO: walk directory
+  val suitesList = Seq(Source.fromFile("../testsuite/tests/latest/enum.json")) // TODO: walk directory
   var hasFailed: Boolean = false
 
   for {
@@ -25,13 +25,13 @@ object Main extends MinimalTempest with App {
   }
 
   def validateSuite(suite: TestSuite): Unit = {
-    println(s"[${suite.description}]")
+    println(s"\n[${suite.description}]")
     val schema: Schema = suite.schema
-    println(s"schema: ${suite.schema}")
+//    println(s"schema: ${suite.schema}")
     for {
       test <- suite.tests
     } yield {
-      val passed = schema.validate(test.data) == test.valid
+      val passed = schema.validate(test.data).isValid == test.valid
       passed match {
         case true => println(s"Passed: ${test.description}")
         case false =>

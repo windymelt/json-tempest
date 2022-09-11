@@ -3,35 +3,33 @@ package com.github.windymelt.jsontempest.Attr
 import com.github.windymelt.jsontempest.Attr.AttrObject
 import com.github.windymelt.jsontempest.Schema
 import io.circe.Json
+import cats.data.Validated
 
 sealed trait InclusiveOrExclusive[A]
 final case class Inclusive[A](x: A) extends InclusiveOrExclusive[A]
 final case class Exclusive[A](x: A) extends InclusiveOrExclusive[A]
 
 final case class Range[A <% Double](min: Option[InclusiveOrExclusive[A]], max: Option[InclusiveOrExclusive[A]]) extends Attr {
-  def validateThis(json: Json): Boolean = {
-    {
-      for {
-        num <- json.asNumber
-      } yield (min, max) match {
-        case (None, None) => true
-        case (None, Some(ma)) => ma match {
-	  case Inclusive(m) => num.toDouble <= m
-          case Exclusive(m) => num.toDouble < m
-        }
-        case (Some(mi), None) => mi match {
-          case Inclusive(m) => m <= num.toDouble
-          case Exclusive(m) => m < num.toDouble
-        }
-        case (Some(mi), Some(ma)) => (mi, ma) match {
-	  case (Inclusive(mi), Inclusive(ma)) => mi <= num.toDouble && num.toDouble <= ma
-	  case (Inclusive(mi), Exclusive(ma)) => mi <= num.toDouble && num.toDouble < ma
-	  case (Exclusive(mi), Inclusive(ma)) => mi < num.toDouble && num.toDouble <= ma
-	  case (Exclusive(mi), Exclusive(ma)) => mi < num.toDouble && num.toDouble < ma
-        }
-      }
-    } getOrElse (true)
+  def validateThis(json: Json) = {
+    import cats.implicits._
+    (for {
+      num <- json.asNumber
+    } yield {
+      def checkMin(x: Double): Schema.SchemaValidatedResult = min.map {
+        case Inclusive(m) => check((m <= x) -> s"$num should be less or equal than $m")
+        case Exclusive(m) => check((m < x) -> s"$num should be less than $m")
+      } getOrElse(Validated.valid(()))
+
+      def checkMax(x: Double): Schema.SchemaValidatedResult = max.map {
+        case Inclusive(m) => check((x <= m) -> s"$num should be more or equal than $m")
+        case Exclusive(m) => check((x < m) -> s"$num should be more than $m")
+      } getOrElse(Validated.valid(()))
+
+      checkMin(num.toDouble) *> checkMax(num.toDouble)
+    }) getOrElse (Validated.valid(()))
   }
+
+  private def check(pair: (Boolean, String)) = Validated.condNec(pair._1, (), pair._2)
 }
 
 object Minimum extends AttrObject {

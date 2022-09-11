@@ -5,6 +5,7 @@ import Attr.Attr
 import io.circe.generic.auto._, io.circe.generic.semiauto._, io.circe.syntax._, io.circe.Json
 import io.circe.shapes._
 import shapeless._
+import cats.data.{Validated, ValidatedNec}
 
 case class Schema(
     `$schema`: Option[String] = None,
@@ -26,13 +27,14 @@ case class Schema(
     anyOf: Option[Set[Schema] :+: Set[Boolean] :+: CNil] = None,
     oneOf: Option[Set[Schema] :+: Set[Boolean] :+: CNil] = None,
 ) {
-  def validate(json: Json): Boolean = {
+  def validate(json: Json): Schema.SchemaValidatedResult = {
+    import cats.implicits._
     val attrs: Set[Attr] =
       Schema.allAttrs flatMap (_.fromSchema(this))
-    val validated = attrs.map(_.validateThis(json))
+    val validated: Set[Schema.SchemaValidatedResult] = attrs.map(_.validateThis(json))
     validated match {
-      case e if e.isEmpty => true
-      case otherwise => validated.reduce(_ && _)
+      case e if e.isEmpty => Validated.valid(())
+      case otherwise => validated.reduce(_ *> _)
     }
   }
 }
@@ -49,4 +51,10 @@ object Schema {
   // for external project
   import io.circe.Decoder
   implicit val SchemaDecoder: Decoder[Schema] = deriveDecoder
+
+  /**
+    * Represents vaildated result. You can get all violations information.
+    * ValidatedNec[A, B] is alias for Validated[NonEmptyChain[A], B].
+    */
+  type SchemaValidatedResult = ValidatedNec[String, Unit]
 }

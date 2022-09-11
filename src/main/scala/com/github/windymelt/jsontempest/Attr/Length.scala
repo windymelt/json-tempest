@@ -9,7 +9,7 @@ import cats.implicits._
 import cats.syntax._
 
 final case class Length(inclusiveMin: Option[Int], inclusiveMax: Option[Int]) extends Attr {
-  def validateThis(json: Json): Boolean = {
+  def validateThis(json: Json) = {
     def checkMin(x: Int): ValidatedNec[String, Unit] =
       inclusiveMin.map(min => Validated.condNec(min <= x, (), "Violation of minimum length")).getOrElse(valid(()))
     def checkMax(x: Int): ValidatedNec[String, Unit] =
@@ -25,7 +25,8 @@ final case class Length(inclusiveMin: Option[Int], inclusiveMax: Option[Int]) ex
     if (validated.isInvalid) {
       validated.leftMap(nec => println(s"! ${nec.mkString_("\n")}"))
     }
-    validated.isValid
+
+    validated
   }
 }
 

@@ -8,8 +8,11 @@ import cats.data.{Validated, ValidatedNec}
 import Validated.valid
 
 final case class SthOf(schemas: Set[Schema], inclusiveMin: Option[Int], inclusiveMax: Option[Int]) extends Attr {
-  def validateThis(json: Json): Boolean = {
-    val validatedSum = schemas.map(_.validate(json) match {case false => 0; case true => 1}).sum
+  def validateThis(json: Json): Schema.SchemaValidatedResult = {
+    val validatedSum = schemas.map(_.validate(json) match {
+      case Validated.Invalid(_) => 0
+      case Validated.Valid(_) => 1
+    }).sum
     val checkMin: Int => ValidatedNec[String, Unit] =
       inclusiveMin.map(min => (x: Int) => Validated.condNec(min <= x, (), s"should pass at least $min schema")).getOrElse((_: Int) => valid(()))
     val checkMax: Int => ValidatedNec[String,Unit] =
@@ -20,18 +23,18 @@ final case class SthOf(schemas: Set[Schema], inclusiveMin: Option[Int], inclusiv
       validated.leftMap(nec => println(s"! ${nec.mkString_("\n")}"))
     }
 
-    validated.isValid
+    validated
   }
 }
 
 final case class AllOfBoolean(bools: Set[Boolean]) extends Attr {
-  def validateThis(j: Json): Boolean = !bools.contains(false)
+  def validateThis(j: Json) = Validated.condNec(!bools.contains(false), (), "All condition should be true")
 }
 final case class AnyOfBoolean(bools: Set[Boolean]) extends Attr {
-  def validateThis(j: Json): Boolean = bools.contains(true)
+  def validateThis(j: Json) = Validated.condNec(bools.contains(true), (), "At least one condition should be true")
 }
 final case class OneOfBoolean(bools: Set[Boolean]) extends Attr {
-  def validateThis(j: Json): Boolean = bools.count(_ == true) == 1
+  def validateThis(j: Json) = Validated.condNec(bools.count(_ == true) == 1, (), "Just one condition should be true")
 }
 
 object AllOf extends AttrObject {

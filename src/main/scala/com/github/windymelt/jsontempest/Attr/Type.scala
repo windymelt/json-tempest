@@ -12,9 +12,10 @@ import shapeless._
 
 import com.github.windymelt.jsontempest.Attr.Attr
 import com.github.windymelt.jsontempest.Schema
+import cats.data.{Validated, ValidatedNec}
 
 final case class Type(`type`: String :+: Set[String] :+: CNil) extends Attr {
-  def validateThis(json: Json): Boolean = json match {
+  def validateThis(json: Json) = json match {
     case j if j.isArray   => checkType("array")
     case j if j.isBoolean => checkType("boolean")
     case j if j.isNumber =>
@@ -22,10 +23,10 @@ final case class Type(`type`: String :+: Set[String] :+: CNil) extends Attr {
       js contains(".") match {
 	case true =>
           js endsWith(".0") match {
-	    case true => checkType("number") || checkType("integer")
-            case false => checkType("number") || checkType("float")
+	    case true => checkType("number") orElse checkType("integer")
+            case false => checkType("number") orElse checkType("float")
           }
-        case false => checkType("number") || checkType("integer")
+        case false => checkType("number") orElse checkType("integer")
       }
     case j if j.isNull   => checkType("null")
     case j if j.isObject => checkType("object")
@@ -33,12 +34,14 @@ final case class Type(`type`: String :+: Set[String] :+: CNil) extends Attr {
     case otherwise       => ???
   }
 
-  private def checkType(expected: String): Boolean = {
+  private def checkType(expected: String): ValidatedNec[String, Unit] = {
     `type` match {
-      case Inl(typeString) => expected == typeString
+      case Inl(typeString) => Validated.condNec(expected == typeString, (), s"Type expected $typeString but received $expected")
       case Inr(tail) =>
         tail match {
-          case Inl(typeStrings) => typeStrings contains expected
+          case Inl(typeStrings) =>
+            lazy val typeStringsConcat = typeStrings.mkString("|")
+            Validated.condNec(typeStrings contains expected, (), s"Type expected ${typeStringsConcat} but received $expected}")
           case Inr(_)           => ???
         }
     }

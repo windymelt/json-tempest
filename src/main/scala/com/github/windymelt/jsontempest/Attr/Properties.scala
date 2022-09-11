@@ -5,17 +5,19 @@ import io.circe.Json
 import com.github.windymelt.jsontempest.Attr.Attr
 import com.github.windymelt.jsontempest.Schema
 import com.github.windymelt.jsontempest.MinimalTempest
+import cats.data.Validated
+import cats.implicits._
 
 final case class Properties(props: Map[String, Schema]) extends Attr {
-  def validateThis(json: Json): Boolean = {
+  def validateThis(json: Json): Schema.SchemaValidatedResult = {
     json.asObject match {
-      case None => true
+      case None => Validated.valid(())
       case Some(jo) =>
         val validatedProps = props.map { case (k, v) =>
           jo(k).map(foundProp => v.validate(foundProp))
         }
-        if (validatedProps.find(_.isEmpty).isDefined) { return true }
-        validatedProps.flatten.reduce(_ && _)
+        if (validatedProps.find(_.isEmpty).isDefined) { return Validated.valid(()) }
+        validatedProps.flatten.reduce(_ *> _)
     }
   }
 }

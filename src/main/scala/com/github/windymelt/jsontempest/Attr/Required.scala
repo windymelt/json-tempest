@@ -5,13 +5,14 @@ import io.circe.Json
 import com.github.windymelt.jsontempest.Attr.Attr
 import com.github.windymelt.jsontempest.Schema
 import com.github.windymelt.jsontempest.MinimalTempest
+import cats.data.Validated
 
 final case class Required(requiredFields: Set[String]) extends Attr {
-  def validateThis(json: Json): Boolean = {
+  def validateThis(json: Json) = {
     json.asObject match {
-      case None => false
+      case None => Validated.invalidNec(s"$json should be object")
       case Some(jo) =>
-        requiredFields.map(jo.apply(_)).find(_.isEmpty).isEmpty
+        Validated.condNec(requiredFields.map(jo.apply(_)).find(_.isEmpty).isEmpty, (), "Required field is missing")
     }
   }
 }

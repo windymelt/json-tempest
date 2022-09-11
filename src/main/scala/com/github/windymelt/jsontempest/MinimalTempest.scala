@@ -30,7 +30,7 @@ trait MinimalTempest {
   }
 
   private def validateJson(schema: Schema, json: Json): Boolean = {
-    // Satisfy all attributes contained in schema.
-    schema.validate(json)
+    val result = schema.validate(json)
+    result.isValid
   }
 }
