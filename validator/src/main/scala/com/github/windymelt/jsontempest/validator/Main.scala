@@ -4,7 +4,7 @@ package validator
 import scala.io.Source
 
 object Main extends MinimalTempest with App {
-  val suitesList = Seq(Source.fromFile("./testsuite/tests/draft3/properties.json")) // TODO: walk directory
+  val suitesList = Seq(Source.fromFile("./testsuite/tests/latest/enum.json")) // TODO: walk directory
 
   for {
     suites <- suitesList
