@@ -14,6 +14,7 @@ case class Schema(
     `type`: Option[String :+: Set[String] :+: CNil],
     properties: Option[Map[String, Schema]] = None,
     `enum`: Option[Set[Json]] = None,
+    not: Option[Schema] = None,
     exclusiveMaximum: Option[Int] = None
 ) {
   def validate(json: Json): Boolean = {
@@ -22,13 +23,16 @@ case class Schema(
     println(s"attrs: $attrs")
     val validated = attrs.map(_.validateThis(json))
     println(validated)
-    validated.reduce(_ && _)
+    validated match {
+      case e if e.isEmpty => true
+      case otherwise => validated.reduce(_ && _)
+    }
   }
 }
 
 object Schema {
   import Attr._
-  val allAttrs = Set(Properties, Type, Enum, ExclusiveMaximum)
+  val allAttrs = Set(Properties, Type, Enum, ExclusiveMaximum, Not)
   def fromString(s: String): Either[io.circe.Error, Schema] = {
     import io.circe._
     import io.circe.parser._
