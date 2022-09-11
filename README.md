@@ -3,14 +3,14 @@
 <p align="center">Current status: WIP</p>
 <hr/>
 
-## Roadmap for attributes
+## Roadmap for attributes [draft2020-12]
 
 - [ ] AdditionalItems
 - [ ] AdditionalProperties
 - [ ] AllOf
 - [ ] AnyOf
 - [ ] Dependencies
-- [ ] Enum
+- [x] Enum
 - [ ] Format
 - [ ] Items
 - [ ] MaxItems
