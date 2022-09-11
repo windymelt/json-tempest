@@ -11,7 +11,7 @@ final case class ExclusiveMaximum(max: Int) extends Attr {
       for {
         num <- json.asNumber
       } yield num.toDouble < max
-    } getOrElse (false)
+    } getOrElse (true)
   }
 }
 
