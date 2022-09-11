@@ -19,10 +19,6 @@ final case class SthOf(schemas: Set[Schema], inclusiveMin: Option[Int], inclusiv
       inclusiveMax.map(max => (x: Int) => Validated.condNec(x <= max, (), s"should pass at most $max schema")).getOrElse((_: Int) => valid(()))
     val validated = checkMin(validatedSum) *> checkMax(validatedSum)
 
-    if (validated.isInvalid) {
-      validated.leftMap(nec => println(s"! ${nec.mkString_("\n")}"))
-    }
-
     validated
   }
 }

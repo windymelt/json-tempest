@@ -22,10 +22,6 @@ final case class Length(inclusiveMin: Option[Int], inclusiveMax: Option[Int]) ex
       case None => valid(())
     }
 
-    if (validated.isInvalid) {
-      validated.leftMap(nec => println(s"! ${nec.mkString_("\n")}"))
-    }
-
     validated
   }
 }
