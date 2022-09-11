@@ -18,7 +18,15 @@ final case class Type(`type`: String :+: Set[String] :+: CNil) extends Attr {
     case j if j.isArray   => checkType("array")
     case j if j.isBoolean => checkType("boolean")
     case j if j.isNumber =>
-      checkType("number") || checkType("integer") // TODO: implement this
+      val js = j.toString
+      js contains(".") match {
+	case true =>
+          js endsWith(".0") match {
+	    case true => checkType("number") || checkType("integer")
+            case false => checkType("number") || checkType("float")
+          }
+        case false => checkType("number") || checkType("integer")
+      }
     case j if j.isNull   => checkType("null")
     case j if j.isObject => checkType("object")
     case j if j.isString => checkType("string")

@@ -16,7 +16,8 @@ case class Schema(
     `enum`: Option[Set[Json]] = None,
     not: Option[Schema :+: Boolean :+: CNil] = None,
     required: Option[Set[String]] = None,
-    exclusiveMaximum: Option[Int] = None
+    exclusiveMaximum: Option[Int] = None,
+    allOf: Option[Set[Schema] :+: Set[Boolean] :+: CNil] = None,
 ) {
   def validate(json: Json): Boolean = {
     val attrs: Set[Attr] =

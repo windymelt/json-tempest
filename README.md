@@ -28,7 +28,7 @@
 - [ ] Properties
 - [ ] Ref
 - [ ] Required
-- [ ] Type
+- [x] Type
 - [ ] UniqueItems
 
 ## Roadmap for other features
