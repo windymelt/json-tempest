@@ -3,13 +3,24 @@ package com.github.windymelt.jsontempest.Attr
 import com.github.windymelt.jsontempest.Attr.AttrObject
 import com.github.windymelt.jsontempest.Schema
 import io.circe.Json
+import cats.implicits._
+import cats.data.{Validated, ValidatedNec}
+import Validated.valid
 
 final case class SthOf(schemas: Set[Schema], inclusiveMin: Option[Int], inclusiveMax: Option[Int]) extends Attr {
   def validateThis(json: Json): Boolean = {
     val validatedSum = schemas.map(_.validate(json) match {case false => 0; case true => 1}).sum
-    val checkMin = inclusiveMin.map(min => (x: Int) => min <= x).getOrElse((_: Int) => true)
-    val checkMax = inclusiveMax.map(max => (x: Int) => x <= max).getOrElse((_: Int) => true)
-    checkMin(validatedSum) && checkMax(validatedSum)
+    val checkMin: Int => ValidatedNec[String, Unit] =
+      inclusiveMin.map(min => (x: Int) => Validated.condNec(min <= x, (), s"should pass at least $min schema")).getOrElse((_: Int) => valid(()))
+    val checkMax: Int => ValidatedNec[String,Unit] =
+      inclusiveMax.map(max => (x: Int) => Validated.condNec(x <= max, (), s"should pass at most $max schema")).getOrElse((_: Int) => valid(()))
+    val validated = checkMin(validatedSum) *> checkMax(validatedSum)
+
+    if (validated.isInvalid) {
+      validated.leftMap(nec => println(s"! ${nec.mkString_("\n")}"))
+    }
+
+    validated.isValid
   }
 }
 
