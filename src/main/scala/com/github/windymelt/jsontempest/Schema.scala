@@ -2,7 +2,7 @@ package com.github.windymelt
 package jsontempest
 
 import Attr.Attr
-import io.circe.generic.auto._, io.circe.syntax._, io.circe.Json
+import io.circe.generic.auto._, io.circe.generic.semiauto._, io.circe.syntax._, io.circe.Json
 import io.circe.shapes._
 import shapeless._
 
@@ -20,9 +20,7 @@ case class Schema(
   def validate(json: Json): Boolean = {
     val attrs: Set[Attr] =
       Schema.allAttrs flatMap (_.fromSchema(this))
-    println(s"attrs: $attrs")
     val validated = attrs.map(_.validateThis(json))
-    println(validated)
     validated match {
       case e if e.isEmpty => true
       case otherwise => validated.reduce(_ && _)
@@ -39,4 +37,7 @@ object Schema {
     import io.circe.syntax._
     decode[Schema](s)
   }
+  // for external project
+  import io.circe.Decoder
+  implicit val SchemaDecoder: Decoder[Schema] = deriveDecoder
 }

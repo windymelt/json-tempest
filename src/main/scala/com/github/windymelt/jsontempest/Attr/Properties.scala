@@ -9,13 +9,12 @@ import com.github.windymelt.jsontempest.MinimalTempest
 final case class Properties(props: Map[String, Schema]) extends Attr {
   def validateThis(json: Json): Boolean = {
     json.asObject match {
-      case None => false
+      case None => true
       case Some(jo) =>
         val validatedProps = props.map { case (k, v) =>
-          println(s"verifying property [${k}]")
           jo(k).map(foundProp => v.validate(foundProp))
         }
-        if (validatedProps.find(_.isEmpty).isDefined) { return false }
+        if (validatedProps.find(_.isEmpty).isDefined) { return true }
         validatedProps.flatten.reduce(_ && _)
     }
   }

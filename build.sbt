@@ -19,4 +19,16 @@ lazy val root = (project in file("."))
     Compile / mainClass := Some("com.github.windymelt.jsontempest.Main")
   ).enablePlugins(NativeImagePlugin)
 
+lazy val testsuiteValidator = (project in file("validator"))
+  .settings(
+    name := "json-tempest-validator",
+    libraryDependencies ++= Seq(
+      "io.circe" %% "circe-core",
+      "io.circe" %% "circe-generic",
+      "io.circe" %% "circe-parser",
+      "io.circe" %% "circe-shapes"
+    ).map(_ % circeVersion),
+    libraryDependencies += "com.chuusai" % "shapeless_2.13" % "2.3.9"
+  ).dependsOn(root)
+
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
