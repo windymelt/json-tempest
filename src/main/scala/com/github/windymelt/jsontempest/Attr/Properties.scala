@@ -8,7 +8,7 @@ import com.github.windymelt.jsontempest.MinimalTempest
 import cats.data.Validated
 import cats.implicits._
 
-final case class Properties(props: Map[String, Schema]) extends Attr {
+final case class Properties(props: Map[String, Schema], required: Option[Set[String]]) extends Attr {
   def validateThis(json: Json): Schema.SchemaValidatedResult = {
     json.asObject match {
       case None => Validated.valid(())
@@ -22,7 +22,7 @@ final case class Properties(props: Map[String, Schema]) extends Attr {
   }
 }
 
-final case class BooleanProperties(props: Map[String, Boolean]) extends Attr {
+final case class BooleanProperties(props: Map[String, Boolean], required: Option[Set[String]] = None) extends Attr {
   import cats.implicits._
 
   def validateThis(json: Json) = {
@@ -34,6 +34,7 @@ final case class BooleanProperties(props: Map[String, Boolean]) extends Attr {
         val caseTrue = (for {
           key <- trueFalseMap.get(true).toList.flatten
         } yield {
+          // TODO: implement case "boolean property invalid but required attribute doesn't specify"
           Validated.condNec(jo(key).isDefined, (), s"$key should be defined")
         }).foldLeft(Validated.validNec[String, Unit](()))(_ *> _)
 
@@ -51,8 +52,8 @@ final case class BooleanProperties(props: Map[String, Boolean]) extends Attr {
 object Properties extends AttrObject {
   import shapeless._
   def fromSchema(s: Schema): Option[Attr] = s.properties map {
-    case Inl(props) => Properties(props)
-    case Inr(Inl(booleanProps)) => BooleanProperties(booleanProps)
+    case Inl(props) => Properties(props, s.required)
+    case Inr(Inl(booleanProps)) => BooleanProperties(booleanProps, s.required)
     case Inr(Inr(_)) => ???
   }
 }
