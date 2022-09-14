@@ -21,7 +21,7 @@
 - [x] MinLength
 - [ ] MinProperties
 - [x] Minimum
-- [ ] MultipleOf
+- [x] MultipleOf
 - [x] Not
 - [ ] OneOf
 - [ ] Pattern
