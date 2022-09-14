@@ -34,8 +34,15 @@ final case class BooleanProperties(props: Map[String, Boolean], required: Option
         val caseTrue = (for {
           key <- trueFalseMap.get(true).toList.flatten
         } yield {
-          // TODO: implement case "boolean property invalid but required attribute doesn't specify"
-          Validated.condNec(jo(key).isDefined, (), s"$key should be defined")
+          // Special case "boolean property is true but not in required attribute"
+          val keyRequired = required match {
+	    case None => true
+	    case Some(req) => req.contains(key) match {
+	      case true => req(key)
+              case false => false
+            }
+          }
+          Validated.condNec(jo(key).isDefined || !keyRequired, (), s"$key should be defined")
         }).foldLeft(Validated.validNec[String, Unit](()))(_ *> _)
 
         val caseFalse = (for {
