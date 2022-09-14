@@ -7,7 +7,7 @@
 
 - [ ] AdditionalItems
 - [ ] AdditionalProperties
-- [ ] AllOf
+- [x] AllOf
 - [x] AnyOf
 - [ ] Dependencies
 - [x] Enum
@@ -23,7 +23,7 @@
 - [x] Minimum
 - [x] MultipleOf
 - [x] Not
-- [ ] OneOf
+- [x] OneOf
 - [ ] Pattern
 - [ ] Properties
 - [ ] Ref
