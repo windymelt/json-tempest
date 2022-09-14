@@ -12,7 +12,9 @@ final case class Required(requiredFields: Set[String]) extends Attr {
     json.asObject match {
       case None => Validated.invalidNec(s"$json should be object")
       case Some(jo) =>
-        Validated.condNec(requiredFields.map(jo.apply(_)).find(_.isEmpty).isEmpty, (), "Required field is missing")
+        val lacks = requiredFields.map(k => jo.apply(k).toRight(k)).collect { case Left(x) => x }
+        val lacksStr = lacks.mkString(",")
+        Validated.condNec(lacks.isEmpty, (), s"Required field ${lacksStr} is missing")
     }
   }
 }
