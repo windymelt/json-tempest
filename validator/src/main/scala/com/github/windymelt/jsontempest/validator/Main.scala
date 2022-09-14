@@ -2,9 +2,13 @@ package com.github.windymelt.jsontempest
 package validator
 
 import scala.io.Source
+import cats.data.Validated.Invalid
+import cats.data.Validated.Valid
+import io.circe.DecodingFailure
+import scala.collection.immutable
 
 object Main extends MinimalTempest with App {
-  val suitesList = Seq(Source.fromFile("../testsuite/tests/latest/enum.json")) // TODO: walk directory
+  val suitesList = Seq(Source.fromFile("../testsuite/tests/latest/oneOf.json")) // TODO: walk directory
   var hasFailed: Boolean = false
 
   for {
@@ -17,11 +21,25 @@ object Main extends MinimalTempest with App {
     import io.circe.syntax._
     import io.circe.generic.auto._, io.circe.syntax._
 
-    val Right(suites: Seq[TestSuite]) = decode[Seq[TestSuite]](suitesSource.mkString)
+    decode[Seq[TestSuite]](suitesSource.mkString) match {
+      case Left(err) =>
+        hasFailed = true
+        err match {
+	  case e: DecodingFailure =>
+            showDecodeError(e)
+	  case ParsingFailure(message, underlying) => println(message)
+        }
+      case Right(suites) =>
+        for {
+        suite <- suites
+        } yield validateSuite(suite)
+    }
+  }
 
-    for {
-      suite <- suites
-    } yield validateSuite(suite)
+  private def showDecodeError(e: DecodingFailure): Unit = {
+    import io.circe.CursorOp
+    println(e.message)
+    println(s"Decoding failure occurred at: ${CursorOp.opsToPath(e.history)}")
   }
 
   def validateSuite(suite: TestSuite): Unit = {
@@ -31,13 +49,20 @@ object Main extends MinimalTempest with App {
     for {
       test <- suite.tests
     } yield {
-      val passed = schema.validate(test.data).isValid == test.valid
+      val validated = schema.validate(test.data)
+      val passed = validated.isValid == test.valid
       passed match {
         case true => println(s"Passed: ${test.description}")
         case false =>
           println(s"FAILED: ${test.description}")
           println(s"  expected: ${test.valid}")
           println(s"  data:     ${test.data}")
+          validated match {
+	    case Invalid(e) =>
+              println("  violation info:")
+              println(e.toChain.toVector.mkString("\n"))
+	    case Valid(a) => // nop
+          }
           hasFailed = true
       }
     }
