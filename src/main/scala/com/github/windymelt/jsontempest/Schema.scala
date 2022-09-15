@@ -14,6 +14,8 @@ case class Schema(
     description: Option[String] = None,
     `type`: Option[String :+: Set[String] :+: CNil],
     properties: Option[Map[String, Schema] :+: Map[String, Boolean] :+: CNil] = None,
+    minProperties: Option[Int] = None,
+    maxProperties: Option[Int] = None,
     `enum`: Option[Set[Json]] = None,
     not: Option[Schema :+: Boolean :+: CNil] = None,
     required: Option[Set[String]] = None,
@@ -42,7 +44,7 @@ case class Schema(
 
 object Schema {
   import Attr._
-  val allAttrs = Set(Properties, Type, Enum, Minimum, ExclusiveMinimum, Maximum, ExclusiveMaximum, MinLength, MaxLength, Not, Required, MultipleOf, AllOf, AnyOf, OneOf)
+  val allAttrs = Set(Properties, MinProperties, MaxProperties, Type, Enum, Minimum, ExclusiveMinimum, Maximum, ExclusiveMaximum, MinLength, MaxLength, Not, Required, MultipleOf, AllOf, AnyOf, OneOf)
   def fromString(s: String): Either[io.circe.Error, Schema] = {
     import io.circe._
     import io.circe.parser._

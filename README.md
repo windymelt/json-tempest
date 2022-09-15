@@ -15,11 +15,11 @@
 - [ ] Items
 - [ ] MaxItems
 - [x] MaxLength
-- [ ] MaxProperties
+- [x] MaxProperties
 - [x] Maximum
 - [ ] MinItems
 - [x] MinLength
-- [ ] MinProperties
+- [x] MinProperties
 - [x] Minimum
 - [x] MultipleOf
 - [x] Not
