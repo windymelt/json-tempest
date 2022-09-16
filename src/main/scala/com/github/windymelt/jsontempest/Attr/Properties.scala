@@ -17,7 +17,7 @@ final case class Properties(props: Map[String, Schema], required: Option[Set[Str
           jo(k).map(foundProp => v.validate(foundProp))
         }
         if (validatedProps.find(_.isEmpty).isDefined) { return Validated.valid(()) }
-        validatedProps.flatten.reduce(_ *> _)
+        validatedProps.flatten.toSeq.foldA
     }
   }
 }
@@ -43,13 +43,13 @@ final case class BooleanProperties(props: Map[String, Boolean], required: Option
             }
           }
           Validated.condNec(jo(key).isDefined || !keyRequired, (), s"$key should be defined")
-        }).foldLeft(Validated.validNec[String, Unit](()))(_ *> _)
+        }).foldA
 
         val caseFalse = (for {
           key <- trueFalseMap.get(false).toList.flatten
         } yield {
           Validated.condNec(jo(key).isEmpty, (), s"$key should not be defined")
-        }).foldLeft(Validated.validNec[String, Unit](()))(_ *> _)
+        }).foldA
 
         caseTrue *> caseFalse
     }

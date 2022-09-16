@@ -12,7 +12,7 @@ final case class SthOf(schemas: Set[Schema], inclusiveMin: Option[Int], inclusiv
     // Convert to Seq to keep its size (validated result may be duplicated)
     val validated0 = schemas.toSeq.map(_.validate(json))
     val validatedSum = validated0.filter(_.isValid).size
-    val underlyingErrors = validated0.reduce(_ *> _) match {
+    val underlyingErrors = validated0.foldA match {
       case Validated.Valid(_) => "[all valid]"
       case Validated.Invalid(es) => es.toChain.toVector.mkString(", ")
     }

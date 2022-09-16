@@ -37,7 +37,7 @@ case class Schema(
     val validated: Set[Schema.SchemaValidatedResult] = attrs.map(_.validateThis(json))
     validated match {
       case e if e.isEmpty => Validated.valid(())
-      case otherwise => validated.reduce(_ *> _)
+      case otherwise => validated.toSeq.foldA
     }
   }
 }
